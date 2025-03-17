@@ -27,7 +27,7 @@ def append_to_notion_page(page_id, content):
     
     url = f"https://api.notion.com/v1/blocks/{page_id}/children"
     
-    # Convert content to Notion blocks
+    # Just use a single paragraph block with the entire content
     blocks = [
         {
             "object": "block",
@@ -46,9 +46,18 @@ def append_to_notion_page(page_id, content):
     ]
     
     data = {"children": blocks}
-    response = requests.patch(url, headers=headers, json=data)
     
-    return response.status_code >= 200 and response.status_code < 300
+    try:
+        response = requests.patch(url, headers=headers, json=data)
+        print(f"Notion API response status: {response.status_code}")
+        
+        if response.status_code >= 400:
+            print(f"Notion API error: {response.text}")
+            
+        return response.status_code >= 200 and response.status_code < 300
+    except Exception as e:
+        print(f"Error calling Notion API: {str(e)}")
+        return False
 
 def get_notion_page_content(page_id):
     """
